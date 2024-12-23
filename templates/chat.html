@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="tabs">
+        <a href="chat.html" class="tab active-tab">Chat</a>
+        <a href="image_chat.html" class="tab">Chat based on Images</a>
+    </div>
+
+    <div id="chatTab" class="tab-content active">
+        <h2>Chat with Document Indexing Assistant</h2>
+        
+        <div id="pipeline_selection">
+            <label for="pipeline">Choose a pipeline:</label>
+            <select id="pipeline">
+                <option value="conversational_agent_gpt_4">Conversational Agent</option>
+                <option value="rag_pipeline_gpt_4_conversational">RAG Pipeline</option>
+            </select>
+        </div>
+
+        <div id="chat_display" class="chat-display">
+            <div id="welcome_message" class="welcome-message">👩🏻‍💻 Welcome to the chat!</div>
+        </div>
+
+        <div id="user_input_section">
+            <input type="text" id="user_input" placeholder="Ask a question" onkeypress="handleKeyPress(event)">
+            <button onclick="sendQuestion()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            restoreChatHistory();
+        });
+
+        async function sendQuestion() {
+            const question = document.getElementById("user_input").value.trim();
+            const pipeline = document.getElementById("pipeline").value;
+            if (!question) return;
+
+            addChatMessage("user", question);
+            document.getElementById("user_input").value = "";
+
+            const loadingIndicator = addLoadingIndicator();
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question, pipeline })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const botResponse = data.response || "Error: No response available.";
+                    removeLoadingIndicator(loadingIndicator);
+                    addChatMessage("bot", botResponse);
+                    saveChatMessage("bot", botResponse);
+                } else {
+                    removeLoadingIndicator(loadingIndicator);
+                    addChatMessage("bot", "Error: Unable to get a response.");
+                }
+            } catch (error) {
+                console.error("Chat error:", error);
+                removeLoadingIndicator(loadingIndicator);
+                addChatMessage("bot", "Error: Unable to get a response.");
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") sendQuestion();
+        }
+
+        function addChatMessage(sender, text) {
+            const chatDisplay = document.getElementById("chat_display");
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `chat-message ${sender}`;
+            messageDiv.textContent = text;
+
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            saveChatMessage(sender, text);
+        }
+
+        function addLoadingIndicator() {
+            const chatDisplay = document.getElementById("chat_display");
+
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "chat-message bot loading";
+            loadingDiv.innerHTML = "<span class='dot'>.</span><span class='dot'>.</span><span class='dot'>.</span>";
+
+            chatDisplay.appendChild(loadingDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            return loadingDiv;
+        }
+
+        function removeLoadingIndicator(indicator) {
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function restoreChatHistory() {
+            const chatHistory = JSON.parse(localStorage.getItem("chat_history") || "[]");
+            if (chatHistory.length === 0) {
+                document.getElementById("welcome_message").style.display = "flex";
+            } else {
+                chatHistory.forEach(({ sender, text }) => addChatMessage(sender, text));
+            }
+        }
+
+        function saveChatMessage(sender, text) {
+            const chatHistory = JSON.parse(localStorage.getItem("chat_history") || "[]");
+            chatHistory.push({ sender, text });
+            localStorage.setItem("chat_history", JSON.stringify(chatHistory));
+        }
+    </script>
+</body>
+</html>

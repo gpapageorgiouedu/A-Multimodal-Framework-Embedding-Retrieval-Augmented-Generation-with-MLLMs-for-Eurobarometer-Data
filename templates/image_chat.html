@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat based on Images</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="tabs">
+        <a href="chat.html" class="tab">Chat</a>
+        <a href="image_chat.html" class="tab active-tab">Chat based on Images</a>
+    </div>
+
+    <div id="imageChatTab" class="tab-content active">
+        <h2>Chat with Image Related Data</h2>
+        <div id="pipeline_selection">
+            <label>Pipeline:</label>
+            <span>Image Analysis Model</span>
+        </div>
+
+        <div class="chat-container">
+            <div id="chat_display" class="chat-display">
+                <div id="welcome_message" class="welcome-message">🤖 Welcome to the Image-Based Chat!</div>
+            </div>
+
+            <div id="analyze_image_section" class="analyze-image-section">
+                <h3>Analyze Image</h3>
+                <div id="image_preview"></div>
+            </div>
+        </div>
+
+        <div id="user_input_section">
+            <input type="text" id="user_input" placeholder="Ask a question" onkeypress="handleKeyPress(event)">
+            <button onclick="sendImageQuestion()">Send</button>
+        </div>
+
+    </div>
+
+    <div id="fullscreen_preview" class="fullscreen-preview" style="display: none;">
+        <span class="close-btn" onclick="closeFullscreenPreview()">&times;</span>
+        <img id="fullscreen_image" src="" alt="Image Preview">
+    </div>
+
+    <script>
+        let selectedImages = [];
+        
+        async function sendImageQuestion() {
+            const question = document.getElementById("user_input").value.trim();
+            if (!question) {
+                alert("Please enter a question.");
+                return;
+            }
+
+            const selectedImages = Array.from(document.querySelectorAll(".image-item.selected")).map((img) => ({
+                path: img.dataset.path,
+                title: img.dataset.title,
+            }));
+            const imageUrls = selectedImages.map((img) => img.path);
+
+            addChatMessage("user", question, imageUrls);
+            document.getElementById("user_input").value = "";
+
+            const loadingIndicator = addLoadingIndicator();
+
+            try {
+                const endpoint = selectedImages.length === 0 ? "/chat_image" : "/analyze_images";
+                const payload = selectedImages.length === 0
+                    ? { question }
+                    : { selected_images: selectedImages, query: question };
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    removeLoadingIndicator(loadingIndicator);
+
+                    if (data.response) {
+                        addChatMessage("bot", data.response);
+                    } else if (data.results) {
+                        Object.entries(data.results).forEach(([title, answer]) => {
+                            addChatMessage("bot", `Answer for "${title}": ${answer}`);
+                        });
+                    } else {
+                        addChatMessage("bot", "No relevant information found.");
+                    }
+
+                    if (selectedImages.length === 0 && data.image_paths) {
+                        displayImagePreview(data.image_paths);
+                    }
+                } else {
+                    removeLoadingIndicator(loadingIndicator);
+                    addChatMessage("bot", "Error: Unable to get a response.");
+                }
+            } catch (error) {
+                removeLoadingIndicator(loadingIndicator);
+                console.error("Error in sendImageQuestion:", error);
+                addChatMessage("bot", "Error: Unable to get a response.");
+            }
+        }
+
+
+        function addChatMessage(sender, text, imageUrls = []) {
+            const chatDisplay = document.getElementById("chat_display");
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `chat-message ${sender}`;
+            messageDiv.textContent = text;
+
+            if (imageUrls.length > 0) {
+                const thumbnailsContainer = document.createElement("div");
+                thumbnailsContainer.className = "thumbnails-container";
+
+                imageUrls.forEach((imageUrl) => {
+                    const imgThumbnail = document.createElement("img");
+                    imgThumbnail.src = imageUrl;
+                    imgThumbnail.className = "chat-thumbnail";
+                    imgThumbnail.onclick = () => openFullscreenPreview(imageUrl);
+                    thumbnailsContainer.appendChild(imgThumbnail);
+                });
+
+                messageDiv.appendChild(thumbnailsContainer);
+            }
+
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
+
+        function addLoadingIndicator() {
+            const chatDisplay = document.getElementById("chat_display");
+
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "chat-message bot loading";
+            loadingDiv.innerHTML = "<span class='dot'>.</span><span class='dot'>.</span><span class='dot'>.</span>";
+
+            chatDisplay.appendChild(loadingDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            return loadingDiv;
+        }
+
+        function removeLoadingIndicator(indicator) {
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") sendImageQuestion();
+        }
+
+        function displayImagePreview(imagePaths) {
+            const previewContainer = document.getElementById("image_preview");
+            previewContainer.innerHTML = "";
+
+            imagePaths.forEach((image, index) => {
+                const imageDiv = document.createElement("div");
+                imageDiv.classList.add("image-item");
+                imageDiv.dataset.path = image.path;
+                imageDiv.dataset.title = image.title;
+                imageDiv.onclick = () => toggleImageSelection(imageDiv);
+
+                imageDiv.innerHTML = `
+                    <img src="${image.path}" alt="Image ${index + 1}" class="preview-image" onclick="openFullscreenPreview('${image.path}')">
+                    <br>${image.title}
+                `;
+                previewContainer.appendChild(imageDiv);
+            });
+            document.getElementById("analyze_image_section").style.display = "block";
+        }
+
+        function toggleImageSelection(imageDiv) {
+            const isSelected = imageDiv.classList.toggle("selected");
+
+            const selectedImage = {
+                path: imageDiv.dataset.path,
+                title: imageDiv.dataset.title
+            };
+
+            if (isSelected) {
+                selectedImages.push(selectedImage);
+            } else {
+                selectedImages = selectedImages.filter(img => img.path !== selectedImage.path);
+            }
+        }
+
+        function clearImageSelections() {
+            document.querySelectorAll(".image-item.selected").forEach(img => img.classList.remove("selected"));
+        }
+
+        async function analyzeSelectedImages(selectedImages, query, loadingIndicator) {
+            try {
+                const response = await fetch("/analyze_images", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ selected_images: selectedImages, query })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    removeLoadingIndicator(loadingIndicator);
+
+                    for (const [title, answer] of Object.entries(data.results)) {
+                        addChatMessage("bot", `Answer for "${title}": ${answer}`);
+                    }
+                } else {
+                    removeLoadingIndicator(loadingIndicator);
+                    addChatMessage("bot", "Error: Unable to analyze the selected images.");
+                }
+            } catch (error) {
+                removeLoadingIndicator(loadingIndicator);
+                addChatMessage("bot", "Error: Unable to analyze the selected images.");
+            }
+        }
+
+        function openFullscreenPreview(imageUrl) {
+            const previewContainer = document.getElementById("fullscreen_preview");
+            const fullscreenImage = document.getElementById("fullscreen_image");
+            fullscreenImage.src = imageUrl;
+            previewContainer.style.display = "flex";
+        }
+
+        function closeFullscreenPreview() {
+            document.getElementById("fullscreen_preview").style.display = "none";
+        }
+    </script>
+</body>
+</html>
