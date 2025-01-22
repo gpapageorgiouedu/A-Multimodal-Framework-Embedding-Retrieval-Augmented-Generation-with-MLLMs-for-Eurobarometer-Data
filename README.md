@@ -11,7 +11,7 @@ To be added.
 
 The repository contains a [FastAPI](https://github.com/fastapi/fastapi) application designed to run in Google Colab. It is built using the robust open-source [Haystack](https://github.com/deepset-ai/haystack) framework, which provides an end-to-end solution for Large Language Models (LLMs) and Multimodal Large Language Models (MLLMs).
 
-The application offers a web-based interface for interacting with Generative AI models such as GPT-4 and GPT-4o, allowing for modular selection of models on the framework's backend. It supports three modes for processing questions and answers, including dedicated Retrieval-Augmented Generation (RAG) pipelines for text and image-related data, along with Conversational Multi-Agent systems. The main functionalities include engaging in interactive conversations with the Gen AI models of their choice upon configuration and conversational agents based on text and image-related data, with the option for analyzing images in QA.
+The application offers a web-based interface for interacting with Generative AI models such as GPT-4o-mini and GPT-4o, allowing for modular selection of models on the framework's backend. It supports three modes for processing questions and answers, including dedicated Retrieval-Augmented Generation (RAG) pipelines for text and image-related data, along with Conversational Multi-Agent systems. The main functionalities include engaging in interactive conversations with the Gen AI models of their choice upon configuration and conversational agents based on text and image-related data, with the option for analyzing images in QA.
 
 
 ## Example Use Case
