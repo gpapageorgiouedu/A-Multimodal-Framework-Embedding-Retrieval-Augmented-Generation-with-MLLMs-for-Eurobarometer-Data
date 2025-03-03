@@ -4,7 +4,19 @@ This repository has been established in conjunction with the publication of the 
 
 ### Citation
 ```bibtex
-To be added.
+@Article{ai6030050,
+AUTHOR = {Papageorgiou, George and Sarlis, Vangelis and Maragoudakis, Manolis and Tjortjis, Christos},
+TITLE = {A Multimodal Framework Embedding Retrieval-Augmented Generation with MLLMs for Eurobarometer Data},
+JOURNAL = {AI},
+VOLUME = {6},
+YEAR = {2025},
+NUMBER = {3},
+ARTICLE-NUMBER = {50},
+URL = {https://www.mdpi.com/2673-2688/6/3/50},
+ISSN = {2673-2688},
+ABSTRACT = {This study introduces a multimodal framework integrating retrieval-augmented generation (RAG) with multimodal large language models (MLLMs) to enhance the accessibility, interpretability, and analysis of Eurobarometer survey data. Traditional approaches often struggle with the diverse formats and large-scale nature of these datasets, which include textual and visual elements. The proposed framework leverages multimodal indexing and targeted retrieval to enable focused queries, trend analysis, and visualization, across multiple survey editions. The integration of LLMs facilitates advanced synthesis of insights, providing a more comprehensive understanding of public opinion trends. The proposed framework offers prospective benefits for different types of stakeholders, including policymakers, journalists, nongovernmental organizations (NGOs), researchers, and citizens, while highlighting the need for performance assessment to evaluate its effectiveness based on specific business requirements and practical applications. The framework’s modular design supports applications, such as survey studies, comparative analyses, and domain-specific investigations, while its scalability and reproducibility make it suitable for e-governance and public sector deployment. The results indicate potential enhancements in data interpretation and data analysis by providing stakeholders with the capability not only to utilize raw text data for knowledge extraction but also to conduct image analysis based on indexed content, paving the way for informed policymaking and advanced research in the social sciences, while emphasizing the need for performance assessment to validate the framework’s output and functionality, based on the selected architectural components. Future research will explore expanded functionalities and real-time applications, ensuring the framework remains adaptable to evolving needs in public opinion analysis and multimodal data integration.},
+DOI = {10.3390/ai6030050}
+}
 ```
 
 ## Introduction
