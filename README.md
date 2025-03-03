@@ -1,6 +1,6 @@
 # A-Multimodal-Framework-Embedding-Retrieval-Augmented-Generation-with-MLLMs-for-Eurobarometer-Data
 
-This repository has been established in conjunction with the publication of the research paper titled "A Multimodal Framework Embedding Retrieval-Augmented Generation with MLLMs for Eurobarometer Data" and serves as a supplementary resource for researchers interested in creating Multi-Agent systems integrated with MLLMs. Our example use case is dedicated to E-Government Services.
+This repository has been established in conjunction with the publication of the research paper titled [A Multimodal Framework Embedding Retrieval-Augmented Generation with MLLMs for Eurobarometer Data](https://www.mdpi.com/2673-2688/6/3/50) and serves as a supplementary resource for researchers interested in creating Multi-Agent systems integrated with MLLMs. Our example use case is dedicated to E-Government Services.
 
 ### Citation
 ```bibtex
