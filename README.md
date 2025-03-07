@@ -43,6 +43,13 @@ To access the notebook in Google Colab, click the badge below and follow the gui
 
 Example indexing and querying pipelines are set up as demonstrated in our research. For usage, you will need to create your own index. All components are modular and scalable, allowing a variety of vectorized databases, generative AI models and MLLMs, embeddings, prompts, and other elements to be modified as per users' preferences.
 
+### Important Update
+
+Due to current compatibility issues between `farm-haystack[FAISS]` and Python 3.11 (now the default in Google Colab), the original notebook may encounter installation issues.
+
+To ensure a smooth experience, you can either switch to Python 3.10 or use the updated version of the notebook, which replaces `FAISSDocumentStore` with `InMemoryDocumentStore`:
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpapageorgiouedu/A-Multimodal-Framework-Embedding-Retrieval-Augmented-Generation-with-MLLMs-for-Eurobarometer-Data/blob/main/RAG_MLLMs__InMemory_demo.ipynb)
 
 ## Features
 
